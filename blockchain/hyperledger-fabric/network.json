@@ -1,0 +1,67 @@
+{
+  "name": "credential-network",
+  "version": "1.0.0",
+  "client": {
+    "organization": "DefaultOrg",
+    "logging": {
+      "level": "info"
+    },
+    "tlsCerts": {
+      "systemCerts": false
+    }
+  },
+  "organizations": {
+    "DefaultOrg": {
+      "mspid": "DefaultMSP",
+      "peers": ["peer0.example.com"],
+      "certificateAuthorities": ["ca.example.com"],
+      "adminPrivateKey": {
+        "path": "${FABRIC_CFG_PATH}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/keystore/priv_sk"
+      },
+      "signedCert": {
+        "path": "${FABRIC_CFG_PATH}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/Admin@org1.example.com-cert.pem"
+      }
+    }
+  },
+  "peers": {
+    "peer0.example.com": {
+      "url": "grpc://localhost:7051",
+      "tlsCACerts": {
+        "path": "${FABRIC_CFG_PATH}/organizations/peerOrganizations/org1.example.com/peers/peer0.example.com/tls/ca.crt"
+      },
+      "grpcOptions": {
+        "ssl-target-name-override": "peer0.example.com"
+      }
+    }
+  },
+  "certificateAuthorities": {
+    "ca.example.com": {
+      "url": "http://localhost:7054",
+      "caName": "ca-org1"
+    }
+  },
+  "channels": {
+    "credential-channel": {
+      "orderers": ["orderer.example.com"],
+      "peers": {
+        "peer0.example.com": {
+          "endorsingPeer": true,
+          "chaincodeQuery": true,
+          "ledgerQuery": true,
+          "eventSource": true
+        }
+      }
+    }
+  },
+  "orderers": {
+    "orderer.example.com": {
+      "url": "grpc://localhost:7050",
+      "tlsCACerts": {
+        "path": "${FABRIC_CFG_PATH}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/ca.crt"
+      },
+      "grpcOptions": {
+        "ssl-target-name-override": "orderer.example.com"
+      }
+    }
+  }
+}

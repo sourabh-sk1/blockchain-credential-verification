@@ -1,0 +1,24 @@
+{
+  "name": "academic-credential-blockchain",
+  "version": "1.0.0",
+  "description": "Decentralized and Immutable Framework for Academic Credential Verification",
+  "main": "backend/server.js",
+  "scripts": {
+    "backend:dev": "cd backend && npm run dev",
+    "backend:start": "cd backend && npm start",
+    "frontend:dev": "cd frontend && npm start",
+    "frontend:build": "cd frontend && npm run build",
+    "test": "cd tests && npm test",
+    "fabric:setup": "cd docker && ./setup-fabric.sh",
+    "fabric:down": "cd docker && ./teardown-fabric.sh"
+  },
+  "keywords": [
+    "blockchain",
+    "academic",
+    "credentials",
+    "hyperledger-fabric",
+    "verification"
+  ],
+  "author": "Blockchain Team",
+  "license": "MIT"
+}
