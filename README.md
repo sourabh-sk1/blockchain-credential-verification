@@ -1,658 +1,305 @@
-# Academic Credential Verification System
-
-A blockchain-based system to prevent academic credential fraud using Hyperledger Fabric, featuring digitally signed credentials with cryptographic hashing and tamper-proof verification.
-
-## Table of Contents
-
-1. [Features](#features)
-2. [System Architecture](#system-architecture)
-3. [Technology Stack](#technology-stack)
-4. [Installation & Setup](#installation--setup)
-5. [Usage Guide](#usage-guide)
-6. [API Documentation](#api-documentation)
-7. [Security Features](#security-features)
-8. [Deployment](#deployment)
-
-## Features
-
-✅ **Blockchain Integration**: Hyperledger Fabric for immutable credential storage  
-✅ **Cryptographic Hashing**: SHA-256 hash verification for credential authenticity  
-✅ **Digital Signatures**: RSA-2048 signatures for issuer authentication  
-✅ **QR Code Generation**: Scannable credentials with embedded verification data  
-✅ **Role-Based Access Control**: Admin, Issuer, Student, and Verifier roles  
-✅ **Audit Logging**: Complete transaction history on blockchain  
-✅ **DID Support**: Decentralized Identity for entities  
-✅ **IPFS Integration**: Distributed PDF storage capability  
-✅ **Credential Revocation**: Secure credential invalidation mechanism  
-
-## System Architecture
-
-### High-Level Architecture Diagram
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        Frontend Layer (React)                    │
-├──────────────────────┬──────────────────────┬──────────────────┤
-│  University          │  Student             │  Verifier        │
-│  Dashboard           │  Portal              │  Portal          │
-│  - Issue Credential  │  - View Credentials  │  - Scan QR Code  │
-│  - Generate Hash     │  - Download Cert     │  - Verify Hash   │
-│  - Generate QR       │  - Share Credential  │  - View History  │
-└──────────┬───────────┴──────────┬───────────┴──────────┬────────┘
-           │                      │                      │
-           └──────────┬───────────┴──────────┬───────────┘
-                      │ HTTPS API            │
-                      ▼                      ▼
-        ┌─────────────────────────────────────────────────┐
-        │         Backend API Layer (Node.js/Express)     │
-        ├─────────────────────────────────────────────────┤
-        │  Controllers │ Services │ Middleware │ Routes   │
-        │  ◆ Auth      │ Fabric   │ JWT Auth   │ Auth     │
-        │  ◆ Creds     │ IPFS     │ Authorization │ Creds │
-        │  ◆ Verify    │ DID      │ Error Handler │ Verify │
-        └──────┬──────────────────────────────────────────┘
-               │
-      ┌────────┴──────────┬───────────────────┐
-      │                   │                   │
-      ▼                   ▼                   ▼
-┌────────────────┐ ┌──────────────────┐ ┌──────────────┐
-│   MongoDB      │ │ Hyperledger      │ │    IPFS      │
-│  (Off-chain)   │ │ Fabric Network   │ │  (Optional)  │
-│ ◆ User Data    │ │ ◆ Credentials   │ │ ◆ PDFs       │
-│ ◆ Metadata     │ │ ◆ Hashes        │ │ ◆ Documents  │
-│ ◆ Audit Logs   │ │ ◆ Audit Trail   │ │              │
-└────────────────┘ └──────────────────┘ └──────────────┘
-```
-
-### Component Explanation
-
-#### Frontend Components
-- **University Dashboard**: Issue credentials, generate hashes, create QR codes
-- **Student Portal**: View, download, and share credentials
-- **Verifier Portal**: Verify credentials using hash or QR code scanning
-- **Admin Dashboard**: Manage users and view statistics
-
-#### Backend Services
-- **Authentication Service**: User registration, login, JWT token generation
-- **Credential Service**: Issue, retrieve, revoke credentials
-- **Verification Service**: Verify credentials, maintain verification history
-- **Blockchain Service**: Interact with Hyperledger Fabric network
-- **IPFS Service**: Store and retrieve PDF documents
-- **DID Service**: Generate and manage Decentralized Identifiers
-
-#### Blockchain Layer
-- **Hyperledger Fabric**: Permissioned blockchain network
-- **Smart Contract (Chaincode)**: Credential issuance, verification, revocation
-- **Channel**: `credential-channel` for credential transactions
-
-## Technology Stack
-
-### Backend
-- **Runtime**: Node.js v18
-- **Framework**: Express.js
-- **Database**: MongoDB (off-chain metadata)
-- **Blockchain**: Hyperledger Fabric 2.2
-- **Security**: JWT, bcrypt, RSA-2048, SHA-256
-- **File Storage**: IPFS (optional)
-
-### Frontend
-- **Framework**: React 18
-- **Styling**: TailwindCSS
-- **State Management**: Zustand
-- **HTTP Client**: Axios
-- **QR Code**: qrcode.react
-
-### Infrastructure
-- **Containerization**: Docker
-- **Orchestration**: Docker Compose
-- **Deployment**: Heroku (Backend), Vercel (Frontend), Docker (Local)
-
-## Installation & Setup
-
-### Prerequisites
-- Node.js v18+
-- Docker & Docker Compose
-- Git
-- MongoDB (or use Docker container)
-
-### Local Development Setup
-
-#### 1. Clone Repository (example using D: drive)
-```powershell
-# Clone directly into D:\projects\project3
-git clone <repository-url> D:\projects\project3
-Set-Location D:\projects\project3
-```
-
-#### 2. Install Dependencies (from D: project location)
-
-**Backend:**
-```powershell
-Set-Location D:\projects\project3\backend
-npm install
-```
-
-**Frontend:**
-```powershell
-Set-Location D:\projects\project3\frontend
-npm install --legacy-peer-deps
-```
-
-#### 3. Configure Environment Variables
-
-**Backend** (`.env`):
-```env
-BACKEND_PORT=5000
-NODE_ENV=development
-MONGODB_URI=mongodb://localhost:27017/academic-credentials
-JWT_SECRET=your_jwt_secret_key
-CORS_ORIGIN=http://localhost:3000
-FABRIC_CHANNEL_NAME=credential-channel
-FABRIC_CHAINCODE_NAME=credential-contract
-IPFS_API_URL=http://localhost:5001
-```
-
-**Frontend** (`.env`):
-```env
-REACT_APP_API_URL=http://localhost:5000/api
-REACT_APP_NETWORK_NAME=local-fabric
-```
-
-#### 4. Start MongoDB
-```bash
-# Using Docker
-docker run -d \
-  -e MONGO_INITDB_ROOT_USERNAME=admin \
-  -e MONGO_INITDB_ROOT_PASSWORD=password123 \
-  -p 27017:27017 \
-  --name credential-mongodb \
-  mongo:6.0
-```
-
-#### 5. Start Backend
-```bash
-cd backend
-npm run dev
-# Server runs on http://localhost:5000
-```
-
-#### 6. Start Frontend (in new terminal)
-```bash
-cd frontend
-npm start
-# App runs on http://localhost:3000
-```
-
-### Docker Compose Setup
-
-```bash
-# Start all services
-docker-compose -f docker/docker-compose.yml up -d
-
-# View logs
-docker-compose -f docker/docker-compose.yml logs -f
-
-# Stop services
-docker-compose -f docker/docker-compose.yml down
-```
-
-## Usage Guide
-
-### 1. User Registration
-
-**Register as University:**
-1. Go to /register
-2. Select Role: "University"
-3. Enter organization name (your university name)
-4. Complete registration
-
-**Register as Student:**
-1. Go to /register
-2. Select Role: "Student"
-3. Complete registration
-
-**Register as Verifier:**
-1. Go to /register
-2. Select Role: "Verifier"
-3. Complete registration
-
-### 2. Issue Credential (University Dashboard)
-
-1. Login with university account
-2. Navigate to University Dashboard
-3. Fill in credential details:
-   - Student ID (select student)
-   - Credential Type (Degree, Diploma, Certificate, Transcript)
-   - Degree name
-   - Major
-   - GPA
-   - Issue Date
-   - Expiry Date (optional)
-4. Click "Issue Credential"
-5. System generates:
-   - Unique Credential ID
-   - SHA-256 cryptographic hash
-   - RSA-2048 digital signature
-   - QR code containing all metadata
-6. Download QR code for distribution
-
-### 3. View Credentials (Student Portal)
-
-1. Login with student account
-2. Navigate to Student Portal
-3. View list of issued credentials with:
-   - Issuer information
-   - Credential type and degree
-   - Issue date
-   - Current status
-
-### 4. Verify Credential (Verifier Portal)
-
-**Method 1: By Hash**
-1. Login with verifier account
-2. Navigate to Verifier Portal
-3. Enter credential hash (64-character hex string)
-4. System verifies:
-   - Hash matches blockchain record
-   - Digital signature is valid
-   - Credential is not revoked
-   - Credential is not expired
-5. View verification result with details
-
-**Method 2: By Credential ID**
-1. Enter credential ID
-2. System performs same verification checks
-3. Display verification result
-
-**Method 3: QR Code Scan**
-1. Use QR code scanner
-2. Extract credential ID and hash
-3. Automatically verify
-
-## API Documentation
-
-### Authentication Endpoints
-
-#### Register User
-```http
-POST /api/auth/register
-Content-Type: application/json
-
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "password": "SecurePass123!",
-  "role": "STUDENT",
-  "organization": "Tech University"
-}
-
-Response: {
-  "message": "User registered successfully",
-  "token": "eyJhbGciOiJIUzI1NiIs...",
-  "user": {
-    "userId": "USER-1699000000000-abc123",
-    "email": "john@example.com",
-    "role": "STUDENT",
-    "did": "did:fabric:credential-channel:DefaultMSP:john@example.com"
-  }
-}
-```
-
-#### Login
-```http
-POST /api/auth/login
-Content-Type: application/json
-
-{
-  "email": "john@example.com",
-  "password": "SecurePass123!"
-}
-
-Response: {
-  "message": "Login successful",
-  "token": "eyJhbGciOiJIUzI1NiIs...",
-  "user": { ... }
-}
-```
-
-### Credential Endpoints
-
-#### Issue Credential
-```http
-POST /api/credentials/issue
-Authorization: Bearer {token}
-Content-Type: application/json
-
-{
-  "studentId": "STUDENT_MONGO_ID",
-  "credentialType": "DEGREE",
-  "degree": "Bachelor of Science",
-  "major": "Computer Science",
-  "gpa": 3.85,
-  "issueDate": "2024-01-15",
-  "expiryDate": "2034-01-15"
-}
-
-Response: {
-  "message": "Credential issued successfully",
-  "credential": {
-    "credentialId": "CRED-1699000000000-XYZ789",
-    "credentialHash": "a1b2c3d4e5f6...",
-    "transactionId": "fabric-tx-id-12345",
-    "qrCode": "data:image/png;base64,..."
-  }
-}
-```
-
-#### Verify Credential
-```http
-POST /api/verify/verify-hash
-Authorization: Bearer {token}
-Content-Type: application/json
-
-{
-  "credentialHash": "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
-}
-
-Response: {
-  "isValid": true,
-  "credentialId": "CRED-1699000000000-XYZ789",
-  "student": {
-    "name": "John Doe",
-    "email": "john@example.com"
-  },
-  "issuer": {
-    "name": "Tech University"
-  },
-  "details": {
-    "hashMatch": true,
-    "signatureValid": true,
-    "notRevoked": true,
-    "notExpired": true,
-    "blockchainValid": true
-  }
-}
-```
-
-#### List Student Credentials
-```http
-GET /api/credentials/student/list
-Authorization: Bearer {token}
-
-Response: {
-  "count": 3,
-  "credentials": [
-    {
-      "credentialId": "CRED-...",
-      "issuer": "Tech University",
-      "type": "DEGREE",
-      "degree": "Bachelor of Science",
-      "status": "ISSUED",
-      "issueDate": "2024-01-15"
-    }
-  ]
-}
-```
-
-#### Revoke Credential
-```http
-POST /api/credentials/{credentialId}/revoke
-Authorization: Bearer {token}
-Content-Type: application/json
-
-{
-  "reason": "Credential invalidation due to fraud detection"
-}
-
-Response: {
-  "message": "Credential revoked successfully"
-}
-```
-
-#### Get Audit Trail
-```http
-GET /api/credentials/{credentialId}/audit
-Authorization: Bearer {token}
-
-Response: {
-  "credentialId": "CRED-...",
-  "auditTrail": [
-    {
-      "action": "ISSUED",
-      "performedBy": "John University",
-      "timestamp": "2024-01-15T10:30:00Z",
-      "status": "SUCCESS"
-    },
-    {
-      "action": "VERIFIED",
-      "performedBy": "Verifier Name",
-      "timestamp": "2024-01-16T14:20:00Z",
-      "status": "SUCCESS"
-    }
-  ]
-}
-```
-
-## Security Features
-
-### 1. **Cryptographic Hashing**
-- Algorithm: SHA-256
-- Use Case: Generate unique, immutable hash for each credential
-- Verification: Hash comparison ensures document integrity
-
-### 2. **Digital Signatures**
-- Algorithm: RSA-2048
-- Implementation: Each credential signed by issuer's private key
-- Verification: Signature verified using issuer's public key
-- Benefit: Ensures authenticity and non-repudiation
-
-### 3. **Blockchain Immutability**
-- Technology: Hyperledger Fabric
-- Features:
-  - Append-only ledger
-  - Cryptographic linking between blocks
-  - Merkle tree based data structure
-  - Byzantine Fault Tolerant consensus
-
-### 4. **Access Control**
-- Method: Role-Based Access Control (RBAC)
-- Roles: Admin, University Issuer, Student, Verifier
-- JWT-based authentication with expiration
-- Token stored in HTTP-only cookies (production)
-
-### 5. **Database Security**
-- MongoDB authentication required
-- Field-level encryption for sensitive data
-- Indexed queries for performance and security
-
-### 6. **Audit Logging**
-- All credential operations logged
-- Blockchain-recorded audit trail
-- Immutable action history
-- Timestamp for forensic analysis
-
-### 7. **DID (Decentralized Identity)**
-- Format: `did:fabric:channel:msp:entityid`
-- Benefits:
-  - Decentralized and verifiable
-  - Cross-chain compatibility
-  - Self-sovereign identity
-
-### 8. **Credential Revocation**
-- Revocation reasons logged
-- Immediate status update
-- Blockchain-recorded revocation
-- Verification rejects revoked credentials
-
-### 9. **Tamper Detection**
-- Hash mismatch indicates tampering
-- Signature verification fails if credential modified
-- Blockchain consensus prevents record modification
-
-## Deployment
-
-### Deploy Backend to Heroku
-
-```bash
-# 1. Create Heroku app
-heroku create credential-api
-
-# 2. Set environment variables
-heroku config:set MONGODB_URI=your_mongodb_uri
-heroku config:set JWT_SECRET=your_secret
-heroku config:set NODE_ENV=production
-
-# 3. Deploy
-git push heroku main
-
-# 4. View logs
-heroku logs --tail
-```
-
-### Deploy Frontend to Vercel
-
-```bash
-# 1. Install Vercel CLI
-npm install -g vercel
-
-# 2. Deploy
-vercel --prod
-
-# 3. Configure environment variables in Vercel dashboard
-REACT_APP_API_URL=https://credential-api.herokuapp.com/api
-```
-
-### Deploy with Docker
-
-```bash
-# Build images
-docker build -t credential-backend ./backend
-docker build -t credential-frontend ./frontend
-
-# Push to Docker Hub
-docker push your_username/credential-backend
-docker push your_username/credential-frontend
-
-# Pull and run on server
-docker pull your_username/credential-backend
-docker run -d -p 5000:5000 your_username/credential-backend
-```
-
-## Project Structure
-
-```
-project3/
-├── backend/                          # Node.js/Express API
-│   ├── config/                       # Configuration files
-│   ├── controllers/                  # Request handlers
-│   ├── middleware/                   # Express middleware
-│   ├── models/                       # MongoDB schemas
-│   ├── routes/                       # API routes
-│   ├── services/                     # Business logic
-│   ├── utils/                        # Utility functions
-│   ├── server.js                     # Entry point
-│   └── package.json
-│
-├── frontend/                         # React application
-│   ├── public/                       # Static assets
-│   ├── src/
-│   │   ├── components/               # React components
-│   │   ├── pages/                    # Page components
-│   │   ├── services/                 # API services
-│   │   ├── store/                    # State management
-│   │   ├── App.js                    # Main component
-│   │   └── index.css                 # Tailwind styles
-│   └── package.json
-│
-├── blockchain/
-│   ├── smart-contracts/              # Chaincode
-│   │   ├── credential-contract.js    # Smart contract
-│   │   └── package.json
-│   └── hyperledger-fabric/           # Fabric configuration
-│       ├── network.json              # Network config
-│       └── enrollment.js             # User enrollment
-│
-├── docker/                           # Docker setup
-│   ├── docker-compose.yml            # Compose file
-│   └── setup-fabric.sh               # Fabric setup script
-│
-├── docs/                             # Documentation
-│   ├── README.md                     # This file
-│   ├── ARCHITECTURE.md               # Architecture details
-│   ├── API.md                        # API documentation
-│   └── DEPLOYMENT.md                 # Deployment guide
-│
-└── tests/                            # Test files
-```
-
-## Testing
-
-### Run Backend Tests
-```bash
-cd backend
-npm test
-```
-
-### Run Frontend Tests
-```bash
-cd frontend
-npm test
-```
-
-### Manual API Testing with Postman
-
-Import the Postman collection:
-```bash
-# Available in: tests/Academic_Credential_Verification.postman_collection.json
-```
-
-## Troubleshooting
-
-### MongoDB Connection Error
-```
-Error: connect ECONNREFUSED 127.0.0.1:27017
-```
-**Solution**: Ensure MongoDB is running and accessible at the configured URI
-
-### Fabric Network Error
-```
-Error: Failed to connect to orderer
-```
-**Solution**: Check Fabric network is properly set up and all components are running
-
-### CORS Error
-```
-Access to XMLHttpRequest blocked by CORS policy
-```
-**Solution**: Verify CORS_ORIGIN in backend .env matches frontend URL
-
-### JWT Token Expired
-```
-Error: Invalid or expired token
-```
-**Solution**: Login again to get new token
-
-## Contributing
-
-1. Fork the repository
-2. Create feature branch: `git checkout -b feature/your-feature`
-3. Commit changes: `git commit -am 'Add feature'`
-4. Push to branch: `git push origin feature/your-feature`
-5. Create Pull Request
-
-## License
-
-MIT License - See LICENSE file for details
-
-## Support
-
-For issues and questions:
-- Create GitHub Issue
-- Email: support@credentialverify.com
-- Documentation: https://docs.credentialverify.com
+# 🎓 Academic Credential Verification System (ACVS)
+
+> **Decentralized, Immutable, and Privacy-Preserving Academic Credential Verification Framework powered by Hyperledger Fabric, W3C Decentralized Identifiers (DID), and MongoDB.**
+
+[![Blockchain](https://img.shields.io/badge/Blockchain-Hyperledger%20Fabric-2F3134?logo=hyperledger&logoColor=white)](https://www.hyperledger.org/projects/fabric)
+[![Node.js](https://img.shields.io/badge/Node.js-v18%2B-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org)
+[![Express](https://img.shields.io/badge/Backend-Express.js-000000?logo=express&logoColor=white)](https://expressjs.com)
+[![React](https://img.shields.io/badge/Frontend-React%2018-61DAFB?logo=react&logoColor=black)](https://react.dev)
+[![Database](https://img.shields.io/badge/Database-MongoDB-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com)
+[![Security](https://img.shields.io/badge/Crypto-SHA256%20%7C%20RSA%20%7C%20W3C%20DID-blueviolet)](#cryptographic-security)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Author](https://img.shields.io/badge/Author-sourabh--sk1-orange?logo=github)](https://github.com/sourabh-sk1)
 
 ---
 
-**Version**: 1.0.0  
-**Last Updated**: 2024  
-**Maintainer**: Blockchain Team
+## 📑 Table of Contents
+
+- [Overview](#-overview)
+- [System Architecture](#-system-architecture)
+- [Core Features by Role](#-core-features-by-role)
+- [Cryptographic & Blockchain Security](#-cryptographic--blockchain-security)
+- [Technology Stack](#-technology-stack)
+- [Project Directory Structure](#-project-directory-structure)
+- [Getting Started](#-getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Environment Configuration](#environment-configuration)
+  - [Installation & Running](#installation--running)
+- [Pre-Seeded Demo Accounts & Credentials](#-pre-seeded-demo-accounts--credentials)
+- [REST API Reference](#-rest-api-reference)
+- [Author & License](#-author--license)
+
+---
+
+## 🌟 Overview
+
+Credential fraud is a widespread global issue: diploma mills, forged physical transcripts, and altered digital PDFs cost institutions and employers billions in manual verification and background checks.
+
+**ACVS** solves this by establishing a decentralized trust triangle between **Accredited Universities**, **Students**, and **Verifiers (Employers/Institutions)**:
+1. **Universities** cryptographically sign and anchor degrees and certificates directly to a distributed ledger.
+2. **Students** retain self-sovereign ownership of their verifiable credentials via **W3C Decentralized Identifiers (DID)**.
+3. **Verifiers** instantly confirm authenticity, issuing institution, and non-revocation status in seconds using a **Credential ID** or **QR Code**—without relying on manual phone calls or centralized server intermediaries.
+
+---
+
+## 🏛 System Architecture
+
+The platform implements a **Hybrid On-Chain / Off-Chain Architecture** designed for enterprise performance, zero gas fees, and student data privacy.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as University Head (Bhavya)
+    actor S as Student (Sourabh)
+    actor V as Verifier / Employer
+    participant API as Express API (:5005)
+    participant DB as MongoDB (:27017)
+    participant BC as Hyperledger Fabric Ledger
+
+    Note over U,API: 1. Issuance Phase
+    U->>API: POST /api/credentials/issue (Student Email, Degree, Major, GPA)
+    API->>API: Generate SHA-256 Hash + RSA Digital Signature + QR Code
+    API->>DB: Save off-chain record & user metadata
+    API->>BC: Invoke Smart Contract: issueCredential(hash, signature, did)
+    BC-->>API: Transaction Confirmed (TxID)
+
+    Note over S,API: 2. Ownership & Academic Wallet Phase
+    S->>API: GET /api/credentials/student/list
+    API-->>S: Return 5 Verified Credentials + QR Codes + DIDs
+    S->>V: Shares Credential ID or QR Code
+
+    Note over V,BC: 3. Instant Verification Phase
+    V->>API: POST /api/verify/verify-hash OR GET /api/verify/:credentialId/verify
+    API->>BC: Query Smart Contract: verifyCredential(id, hash)
+    BC-->>API: Match confirmed, Valid signature, Non-revoked
+    API-->>V: Status: VALID (Issuer: Tech University, Student: Sourabh)
+```
+
+### Storage Segregation:
+* **On-Chain (Hyperledger Fabric Ledger)**: Stores immutable proofs only: SHA-256 credential fingerprint, issuer DID, student DID, cryptographic signature, and revocation flags.
+* **Off-Chain (MongoDB)**: Stores high-speed application state, user accounts, audit histories, and UI data.
+* **Decentralized Storage (IPFS)**: Supports decentralized document hosting for certificate assets via content-addressed hashing.
+
+---
+
+## 👥 Core Features by Role
+
+### 1. 🎓 University Issuer Portal (`UNIVERSITY_ISSUER`)
+* **Role Head**: **Bhavya** (`university@example.com`)
+* **Issue Degrees & Diplomas**: Create tamper-proof academic credentials for any registered student email.
+* **Cryptographic Signing**: Every issuance automatically generates an RSA-2048 digital signature and SHA-256 digest.
+* **Revocation Management**: Universities maintain the authority to revoke credentials (e.g. academic fraud) while retaining an immutable on-chain audit log with timestamps and justification.
+
+### 2. 🎒 Student Portal (`STUDENT`)
+* **Student**: **Sourabh** (`2005sourabhkumar@gmail.com`)
+* **Decentralized Academic Wallet**: Holds all degrees, certificates, and diplomas issued by accredited universities.
+* **Interactive QR Code Generator**: Each credential generates an on-the-fly QR code for instant scanning by recruiters and admission offices.
+* **One-Click Credential ID Sharing**: Quick copy utility to share verification tokens with recruiters.
+* **Cryptographic Profile**: Transparent display of W3C DID (`did:fabric:...`) and RSA Public Key.
+
+### 3. 🔍 Verifier Portal (`VERIFIER`)
+* **Verifier**: **Acme Corp HR** (`verifier@example.com`)
+* **Direct ID Verification**: Enter any Credential ID (e.g. `CRED-...`) to query authenticity against the blockchain ledger.
+* **Cryptographic Hash Verification**: Verify arbitrary document hashes against ledger state.
+* **Tamper-Proof Audit Trail**: Produces a verifiable proof report detailing university identity, issue date, and validity.
+
+---
+
+## 🔐 Cryptographic & Blockchain Security
+
+| Security Layer | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Identity Standard** | **W3C Decentralized Identifier (DID)** | Ensures self-sovereign identity without reliance on central identity providers. |
+| **Content Integrity** | **SHA-256 Cryptographic Hashing** | Any alteration to student name, major, or GPA changes the digest and invalidates verification. |
+| **Authenticity Proof** | **Asymmetric RSA-2048 Digital Signatures** | Proves the certificate was authentically signed by the authorized university head. |
+| **Consortium Ledger** | **Hyperledger Fabric Smart Contracts** | Permissioned distributed ledger with zero transaction fees and instant finality. |
+| **Transit Security** | **JWT + BCrypt + Helmet + CORS** | Industry-standard token authentication and endpoint security hardening. |
+
+---
+
+## 🛠 Technology Stack
+
+### Frontend
+* **React 18**: Single-page application architecture.
+* **TailwindCSS**: Premium responsive UI design with dark mode support.
+* **Zustand**: Clean client-side authentication state management.
+* **QRCode.react**: Client-side QR generation for verifiable credentials.
+* **React Router v6**: Client routing with role-based `ProtectedRoute` guards.
+* **React Icons**: Feather & Heroicons modern iconography.
+
+### Backend & API
+* **Node.js & Express.js**: RESTful API server.
+* **Mongoose (v7)**: MongoDB object modeling.
+* **JSON Web Tokens (JWT)**: Stateless authentication.
+* **BCrypt.js**: Salted password hashing.
+* **Winston**: Enterprise application logging.
+
+### Blockchain & Decentralized Storage
+* **Hyperledger Fabric**: Permissioned enterprise blockchain network.
+* **Fabric Contract API**: Smart contracts written in JavaScript (`credential-contract.js`).
+* **IPFS HTTP Client**: Decentralized document hosting interface.
+
+---
+
+## 📂 Project Directory Structure
+
+```text
+blockchain-credential-verification/
+├── backend/
+│   ├── config/
+│   │   └── database.js              # MongoDB Mongoose connection handler
+│   ├── controllers/
+│   │   ├── authController.js        # Authentication & profile endpoints
+│   │   ├── credentialController.js  # Issuance & student credential queries
+│   │   └── verificationController.js# Verification & audit logic
+│   ├── middleware/                  # JWT auth, authorization, error handlers
+│   ├── models/
+│   │   ├── User.js                  # User schema (Student, University, Verifier)
+│   │   ├── Credential.js            # Credential schema (Hashes, signatures, metadata)
+│   │   ├── Verification.js          # Verification logs
+│   │   └── AuditLog.js              # Audit trail records
+│   ├── routes/                      # API route definitions
+│   ├── services/
+│   │   ├── fabricService.js         # Hyperledger Fabric gateway connector
+│   │   ├── didService.js            # W3C DID generator
+│   │   └── ipfsService.js           # IPFS storage service
+│   ├── utils/
+│   │   └── cryptography.js          # SHA-256 hashing & RSA signing
+│   └── server.js                    # Express application entrypoint
+├── blockchain/
+│   ├── hyperledger-fabric/          # Network configuration & enrollments
+│   └── smart-contracts/
+│       └── credential-contract.js   # Hyperledger Fabric Chaincode
+├── frontend/
+│   ├── public/                      # Static assets & HTML template
+│   └── src/
+│       ├── components/
+│       │   ├── Layout.js            # Sidebar navigation & theme toggle
+│       │   ├── ProtectedRoute.js    # Role-based route authorization
+│       │   └── ThemeToggle.js       # Light / Dark mode switcher
+│       ├── pages/
+│       │   ├── StudentPortal.js     # Student academic wallet & QR codes
+│       │   ├── UniversityDashboard.js# University issuance dashboard
+│       │   ├── VerifierPortal.js    # Credential verification engine
+│       │   ├── ProfilePage.js       # User DID & Cryptographic Key viewer
+│       │   ├── LoginPage.js         # Authentication portal
+│       │   └── RegisterPage.js      # User registration portal
+│       ├── services/api.js          # Axios API client
+│       └── store/authStore.js       # Zustand auth store
+├── docker/
+│   └── docker-compose.yml           # Multi-container deployment configuration
+└── README.md
+```
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+* **Node.js**: v18.0.0 or higher
+* **npm**: v9.0.0 or higher
+* **MongoDB**: Running locally on `mongodb://localhost:27017/`
+
+### Environment Configuration
+
+Create a `.env` file in the project root:
+
+```env
+# Backend Configuration
+BACKEND_PORT=5005
+NODE_ENV=development
+
+# Database
+MONGODB_URI=mongodb://localhost:27017/academic-credentials
+
+# JWT & Security
+JWT_SECRET=super_secret_jwt_key_academic_credentials_2026
+JWT_EXPIRE=7d
+
+# Hyperledger Fabric
+FABRIC_NETWORK_PROFILE=./blockchain/hyperledger-fabric/network.json
+FABRIC_CA_URL=http://localhost:7054
+FABRIC_PEER_URL=grpc://localhost:7051
+FABRIC_ORDERER_URL=grpc://localhost:7050
+FABRIC_CHANNEL_NAME=credential-channel
+FABRIC_CHAINCODE_NAME=credential-contract
+FABRIC_CHAINCODE_VERSION=1.0.0
+
+# Frontend
+REACT_APP_API_URL=http://localhost:5005/api
+CORS_ORIGIN=http://localhost:3000
+```
+
+### Installation & Running
+
+1. **Install Backend Dependencies**:
+   ```bash
+   cd backend
+   npm install
+   ```
+
+2. **Install Frontend Dependencies**:
+   ```bash
+   cd ../frontend
+   npm install
+   ```
+
+3. **Start Backend Server**:
+   ```bash
+   cd ../backend
+   npm start
+   # Server runs on http://localhost:5005
+   ```
+
+4. **Start Frontend Web App**:
+   ```bash
+   cd ../frontend
+   npm start
+   # Application opens on http://localhost:3000
+   ```
+
+---
+
+## 🔑 Pre-Seeded Demo Accounts & Credentials
+
+The local database comes pre-configured with active accounts across all roles:
+
+| Role | Name | Email | Password | Primary Capabilities |
+| :--- | :--- | :--- | :--- | :--- |
+| **Student** | **Sourabh** | `2005sourabhkumar@gmail.com` | *(Your password)* | Holds 5 verified credentials, QR viewer, DID wallet |
+| **University Issuer** | **Bhavya** | `university@example.com` | `UniPass123!` | Issues and revokes degrees, digital signatures |
+| **Verifier** | **Acme Corp HR** | `verifier@example.com` | `VerifyPass123!` | Verifies degrees by Credential ID or SHA-256 hash |
+
+### Live Test Credential IDs (Ready for Verification)
+Paste any of these into the **Verifier Portal** (`http://localhost:3000/verifier-portal`):
+* `CRED-1791729892481-4625A231F7CBFB25` — *Certified Blockchain Architect & Smart Contract Developer*
+* `CRED-1791729892486-7E22D46C9D41850C` — *Honors Diploma in Advanced Cybersecurity & Cryptography*
+* `CRED-1791729892487-5A16C8F2B75060BC` — *Master of Science in Distributed Cloud Systems*
+* `CRED-1791728791091-56EAD11F3C9AB95A` — *Bachelor of Technology in Computer Science & Engineering*
+
+---
+
+## 📡 REST API Reference
+
+### Authentication Endpoints
+* `POST /api/auth/register` — Register a new student, university, or verifier.
+* `POST /api/auth/login` — Authenticate and receive a JWT Bearer token.
+* `GET /api/auth/profile` — Retrieve current user identity, DID, and Public Key.
+
+### Credential Endpoints
+* `POST /api/credentials/issue` — Issue a new academic degree/diploma *(University only)*.
+* `GET /api/credentials/student/list` — Retrieve all credentials for authenticated student *(Student only)*.
+* `GET /api/credentials/:credentialId` — Retrieve detailed credential metadata.
+* `POST /api/credentials/:credentialId/revoke` — Revoke credential with reason *(University only)*.
+
+### Verification Endpoints
+* `GET /api/verify/:credentialId/verify` — Verify credential by Credential ID.
+* `POST /api/verify/verify-hash` — Verify credential authenticity by SHA-256 hash.
+* `GET /api/verify/:credentialId/history` — Inspect verification audit log history.
+
+---
+
+## 👤 Author & License
+
+* **Project Owner**: **sourabh-sk1** ([@sourabh-sk1](https://github.com/sourabh-sk1))
+* **License**: This project is licensed under the **MIT License** — feel free to use and modify for academic and commercial purposes.
