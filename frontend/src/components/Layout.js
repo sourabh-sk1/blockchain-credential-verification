@@ -28,15 +28,27 @@ export default function Layout({ children }) {
     setSidebarOpen(!sidebarOpen);
   };
 
+  const dashboardPath =
+    user?.role === 'UNIVERSITY_ISSUER' ? '/university-dashboard' :
+    user?.role === 'STUDENT' ? '/student-portal' :
+    user?.role === 'VERIFIER' ? '/verifier-portal' :
+    user?.role === 'ADMIN' ? '/admin-dashboard' : '/';
+
+  const credentialsPath =
+    user?.role === 'UNIVERSITY_ISSUER' ? '/university-dashboard' : '/student-portal';
+
   const navigationItems = [
     {
       name: 'Dashboard',
       icon: HiOutlineHome,
-      path: user?.role === 'UNIVERSITY_ISSUER' ? '/university-dashboard' :
-            user?.role === 'STUDENT' ? '/student-portal' :
-            user?.role === 'VERIFIER' ? '/verifier-portal' :
-            user?.role === 'ADMIN' ? '/admin-dashboard' : '/',
+      path: dashboardPath,
       roles: ['UNIVERSITY_ISSUER', 'STUDENT', 'VERIFIER', 'ADMIN']
+    },
+    {
+      name: 'Credentials',
+      icon: HiOutlineDocumentText,
+      path: credentialsPath,
+      roles: ['UNIVERSITY_ISSUER', 'STUDENT']
     },
     {
       name: 'Profile',
@@ -45,21 +57,15 @@ export default function Layout({ children }) {
       roles: ['UNIVERSITY_ISSUER', 'STUDENT', 'VERIFIER', 'ADMIN']
     },
     {
-      name: 'Credentials',
-      icon: HiOutlineDocumentText,
-      path: '/credentials',
-      roles: ['UNIVERSITY_ISSUER', 'STUDENT']
-    },
-    {
       name: 'Verification',
       icon: HiOutlineShieldCheck,
-      path: '/verification',
+      path: '/verifier-portal',
       roles: ['VERIFIER']
     },
     {
       name: 'Admin',
       icon: HiOutlineCog,
-      path: '/admin',
+      path: '/admin-dashboard',
       roles: ['ADMIN']
     }
   ];
@@ -86,7 +92,7 @@ export default function Layout({ children }) {
             Credential Verify
           </h1>
           <div className="mt-2 flex items-center justify-between">
-            <p className="text-gray-600 text-sm">Secure Blockchain Credentials</p>
+            <p className="text-gray-600 text-sm dark:text-gray-400">Secure Blockchain Credentials</p>
             <ThemeToggle />
           </div>
         </div>
@@ -94,22 +100,23 @@ export default function Layout({ children }) {
         {/* User info */}
         <div className="glass-card p-4 mb-6 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-              <HiOutlineUser size={20} className="text-blue-600" />
+            <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
+              <HiOutlineUser size={20} className="text-blue-600 dark:text-blue-400" />
             </div>
-            <div>
-              <p className="text-gray-900 font-medium text-sm dark:text-gray-100">{user?.name}</p>
-              <p className="text-gray-500 text-xs capitalize dark:text-gray-400">{user?.role?.toLowerCase()}</p>
+            <div className="overflow-hidden">
+              <p className="text-gray-900 font-medium text-sm truncate dark:text-gray-100">{user?.name || 'User'}</p>
+              <p className="text-gray-500 text-xs capitalize truncate dark:text-gray-400">{user?.role?.toLowerCase()?.replace('_', ' ')}</p>
             </div>
           </div>
-          <ThemeToggle />
         </div>
 
         {/* Navigation */}
         <nav className="space-y-2">
           {filteredNavItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.path;
+            const isActive =
+              location.pathname === item.path ||
+              (item.name === 'Credentials' && (location.pathname === '/credentials' || location.pathname === '/student-portal'));
 
             return (
               <div
@@ -134,7 +141,7 @@ export default function Layout({ children }) {
         <div className="absolute bottom-6 left-6 right-6">
           <button
             onClick={handleLogout}
-            className="nav-item w-full justify-center text-red-600 hover:bg-red-50"
+            className="nav-item w-full justify-center text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
           >
             <HiOutlineLogout size={20} />
             <span>Logout</span>
