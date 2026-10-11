@@ -16,6 +16,11 @@
 ## 📑 Table of Contents
 
 - [Overview](#-overview)
+- [Application Screenshots & Visual Tour](#-application-screenshots--visual-tour)
+  - [1. Student Portal (Sourabh)](#1-student-portal-sourabh)
+  - [2. University Issuer Portal (Bhavya)](#2-university-issuer-portal-bhavya)
+  - [3. Verifier Portal (HR & Employers)](#3-verifier-portal-hr--employers)
+  - [4. Admin Governance Dashboard](#4-admin-governance-dashboard)
 - [System Architecture](#-system-architecture)
 - [Core Features by Role](#-core-features-by-role)
 - [Cryptographic & Blockchain Security](#-cryptographic--blockchain-security)
@@ -39,6 +44,80 @@ Credential fraud is a widespread global issue: diploma mills, forged physical tr
 1. **Universities** cryptographically sign and anchor degrees and certificates directly to a distributed ledger.
 2. **Students** retain self-sovereign ownership of their verifiable credentials via **W3C Decentralized Identifiers (DID)**.
 3. **Verifiers** instantly confirm authenticity, issuing institution, and non-revocation status in seconds using a **Credential ID** or **QR Code**—without relying on manual phone calls or centralized server intermediaries.
+
+---
+
+## 📸 Application Screenshots & Visual Tour
+
+### 1. Student Portal (Sourabh)
+
+#### A. Academic Credentials Wallet
+> Displays all verified degrees and certificates issued to student **Sourabh** with real-time status badges, majors, and issuing institution details.
+
+<p align="center">
+  <img src="docs/screenshots/student-dashboard.png" alt="Student Dashboard - Credentials Overview" width="90%" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" />
+</p>
+
+#### B. Verifiable Credential QR Code & Details Modal
+> Interactive modal displaying the generated on-the-fly QR code for instant recruiter scanning, along with one-click Credential ID copying.
+
+<p align="center">
+  <img src="docs/screenshots/student-credential-qr-modal.png" alt="Credential Details and Verification QR Modal" width="90%" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" />
+</p>
+
+#### C. Student Decentralized Identity (DID) & Cryptographic Keys
+> Transparent display of student's **W3C DID** (`did:fabric:...`) and asymmetric Public Key used for tamper-proof ownership proofs.
+
+<p align="center">
+  <img src="docs/screenshots/student-profile.png" alt="Student Profile - DID and Cryptographic Public Key" width="90%" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" />
+</p>
+
+---
+
+### 2. University Issuer Portal (Bhavya)
+
+#### A. Degree & Certificate Issuance Interface
+> Form allowing university head **Bhavya** to issue new degrees, diplomas, and transcripts to any registered student email with cryptographic hashing.
+
+<p align="center">
+  <img src="docs/screenshots/university-issue-credential.png" alt="University Credential Issuance Interface" width="90%" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" />
+</p>
+
+#### B. University Dashboard & Issuance Records
+> Historical audit of all issued credentials, active certificates, and revocation statuses.
+
+<p align="center">
+  <img src="docs/screenshots/university-dashboard-overview.png" alt="University Dashboard and Issuance History" width="90%" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" />
+</p>
+
+#### C. University Institutional Profile & Keys
+> Institutional profile for **Bhavya** at *Tech University* showing verified accreditation status and signing keys.
+
+<p align="center">
+  <img src="docs/screenshots/university-profile.png" alt="University Issuer Institutional Profile" width="90%" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" />
+</p>
+
+---
+
+### 3. Verifier Portal (HR & Employers)
+
+#### Real-Time Credential Verification Report
+> Verification screen demonstrating instant proof of authenticity: validates digital signature, checks non-revocation status, and displays student name **Sourabh** and institution **Tech University** with **VALID** status.
+
+<p align="center">
+  <img src="docs/screenshots/verifier-portal-result.png" alt="Verifier Portal - Real-Time Credential Verification Result" width="90%" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" />
+</p>
+
+---
+
+### 4. Admin Governance Dashboard
+
+#### Consortium User & Institutional Management
+> Administrative interface for governing consortium participants, monitoring platform health, and managing institutional KYC status.
+
+<p align="center">
+  <img src="docs/screenshots/admin-dashboard.png" alt="Admin Dashboard - User and Institution Governance" width="90%" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" />
+</p>
 
 ---
 
@@ -145,6 +224,20 @@ sequenceDiagram
 
 ```text
 blockchain-credential-verification/
+├── docs/
+│   └── screenshots/                 # Application visual tour screenshots
+│       ├── student-dashboard.png
+│       ├── student-credential-qr-modal.png
+│       ├── student-profile.png
+│       ├── university-issue-credential.png
+│       ├── university-dashboard-overview.png
+│       ├── university-profile.png
+│       ├── verifier-portal-result.png
+│       └── admin-dashboard.png
+├── Student screenshot/              # Original raw student captures
+├── university access/               # Original raw university captures
+├── Credential Verification/         # Original raw verification captures
+├── Admin dashboard/                 # Original raw admin captures
 ├── backend/
 │   ├── config/
 │   │   └── database.js              # MongoDB Mongoose connection handler
@@ -266,9 +359,10 @@ The local database comes pre-configured with active accounts across all roles:
 
 | Role | Name | Email | Password | Primary Capabilities |
 | :--- | :--- | :--- | :--- | :--- |
-| **Student** | **Sourabh** | `2005sourabhkumar@gmail.com` | *(Your password)* | Holds 5 verified credentials, QR viewer, DID wallet |
+| **Student** | **Sourabh** | `2005sourabhkumar@gmail.com` | `Sourabh123!` | Holds 5 verified credentials, QR viewer, DID wallet |
 | **University Issuer** | **Bhavya** | `university@example.com` | `UniPass123!` | Issues and revokes degrees, digital signatures |
 | **Verifier** | **Acme Corp HR** | `verifier@example.com` | `VerifyPass123!` | Verifies degrees by Credential ID or SHA-256 hash |
+| **Admin** | **Consortium Admin** | `admin@example.com` | `AdminPass123!` | Governs consortium institutions & users |
 
 ### Live Test Credential IDs (Ready for Verification)
 Paste any of these into the **Verifier Portal** (`http://localhost:3000/verifier-portal`):
