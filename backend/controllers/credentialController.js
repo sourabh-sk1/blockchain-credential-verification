@@ -124,7 +124,7 @@ exports.issueCredential = async (req, res) => {
 
     // Log action
     const auditLog = new AuditLog({
-      logId: `LOG-${Date.now()}`,
+      logId: `LOG-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
       userId: issuerId,
       action: 'CREDENTIAL_ISSUED',
       resourceType: 'CREDENTIAL',
@@ -182,7 +182,7 @@ exports.getCredential = async (req, res) => {
 
     // Log verification attempt
     const auditLog = new AuditLog({
-      logId: `LOG-${Date.now()}`,
+      logId: `LOG-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
       userId: req.user.id,
       action: 'CREDENTIAL_VERIFIED',
       resourceType: 'CREDENTIAL',
@@ -284,7 +284,7 @@ exports.revokeCredential = async (req, res) => {
 
     // Log action
     const auditLog = new AuditLog({
-      logId: `LOG-${Date.now()}`,
+      logId: `LOG-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
       userId: revokedBy,
       action: 'CREDENTIAL_REVOKED',
       resourceType: 'CREDENTIAL',

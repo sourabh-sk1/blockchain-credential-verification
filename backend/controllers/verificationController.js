@@ -117,7 +117,7 @@ exports.verifyCredentialHash = async (req, res) => {
 
     // Log action
     const auditLog = new AuditLog({
-      logId: `LOG-${Date.now()}`,
+      logId: `LOG-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
       userId: verifierId,
       action: 'CREDENTIAL_VERIFIED',
       resourceType: 'CREDENTIAL',

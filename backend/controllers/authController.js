@@ -52,7 +52,7 @@ exports.register = async (req, res) => {
 
     // Log action
     const auditLog = new AuditLog({
-      logId: `LOG-${Date.now()}`,
+      logId: `LOG-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
       userId: user._id,
       action: 'USER_CREATED',
       resourceType: 'USER',
@@ -115,7 +115,7 @@ exports.login = async (req, res) => {
 
     // Log action
     const auditLog = new AuditLog({
-      logId: `LOG-${Date.now()}`,
+      logId: `LOG-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
       userId: user._id,
       action: 'LOGIN',
       resourceType: 'USER',
@@ -226,7 +226,7 @@ exports.verifyUser = async (req, res) => {
 
     // Log action
     const auditLog = new AuditLog({
-      logId: `LOG-${Date.now()}`,
+      logId: `LOG-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
       userId: req.user.id,
       action: 'USER_UPDATED',
       resourceType: 'USER',
