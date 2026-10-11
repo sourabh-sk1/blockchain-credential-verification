@@ -5,10 +5,10 @@ let inMemoryAuditLogs = [];
 let auditLogIdCounter = 1;
 
 // Check if we're in development mode and MongoDB is not connected
-const isDevMode = process.env.NODE_ENV === 'development';
-const mongoConnected = mongoose.connection.readyState === 1;
+const useInMemory = process.env.USE_IN_MEMORY === 'true';
 
-if (isDevMode && !mongoConnected) {
+
+if (useInMemory) {
   console.log('Using in-memory storage for AuditLog model (MongoDB not connected)');
 
   // In-memory AuditLog class
