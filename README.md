@@ -1,4 +1,4 @@
-# 🎓 Academic Credential Verification System (ACVS)
+# Academic Credential Verification System (ACVS)
 
 > **Decentralized, Immutable, and Privacy-Preserving Academic Credential Verification Framework powered by Hyperledger Fabric, W3C Decentralized Identifiers (DID), and MongoDB.**
 
@@ -7,36 +7,35 @@
 [![Express](https://img.shields.io/badge/Backend-Express.js-000000?logo=express&logoColor=white)](https://expressjs.com)
 [![React](https://img.shields.io/badge/Frontend-React%2018-61DAFB?logo=react&logoColor=black)](https://react.dev)
 [![Database](https://img.shields.io/badge/Database-MongoDB-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com)
-[![Security](https://img.shields.io/badge/Crypto-SHA256%20%7C%20RSA%20%7C%20W3C%20DID-blueviolet)](#cryptographic-security)
+[![Security](https://img.shields.io/badge/Crypto-SHA256%20%7C%20RSA%20%7C%20W3C%20DID-blueviolet)](#cryptographic--blockchain-security)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Author](https://img.shields.io/badge/Author-sourabh--sk1-orange?logo=github)](https://github.com/sourabh-sk1)
 
 ---
 
-## 📑 Table of Contents
+## Table of Contents
 
-- [Overview](#-overview)
-- [Application Screenshots & Visual Tour](#-application-screenshots--visual-tour)
+- [Overview](#overview)
+- [Application Screenshots & Visual Tour](#application-screenshots--visual-tour)
   - [1. Student Portal (Sourabh)](#1-student-portal-sourabh)
   - [2. University Issuer Portal (Bhavya)](#2-university-issuer-portal-bhavya)
   - [3. Verifier Portal (HR & Employers)](#3-verifier-portal-hr--employers)
   - [4. Admin Governance Dashboard](#4-admin-governance-dashboard)
-- [System Architecture](#-system-architecture)
-- [Core Features by Role](#-core-features-by-role)
-- [Cryptographic & Blockchain Security](#-cryptographic--blockchain-security)
-- [Technology Stack](#-technology-stack)
-- [Project Directory Structure](#-project-directory-structure)
-- [Getting Started](#-getting-started)
+- [System Architecture](#system-architecture)
+- [Core Features by Role](#core-features-by-role)
+- [Cryptographic & Blockchain Security](#cryptographic--blockchain-security)
+- [Technology Stack](#technology-stack)
+- [Project Directory Structure](#project-directory-structure)
+- [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Environment Configuration](#environment-configuration)
   - [Installation & Running](#installation--running)
-- [Pre-Seeded Demo Accounts & Credentials](#-pre-seeded-demo-accounts--credentials)
-- [REST API Reference](#-rest-api-reference)
-- [Author & License](#-author--license)
+- [Pre-Seeded Demo Accounts & Credentials](#pre-seeded-demo-accounts--credentials)
+- [REST API Reference](#rest-api-reference)
+- [License](#license)
 
 ---
 
-## 🌟 Overview
+## Overview
 
 Credential fraud is a widespread global issue: diploma mills, forged physical transcripts, and altered digital PDFs cost institutions and employers billions in manual verification and background checks.
 
@@ -47,7 +46,7 @@ Credential fraud is a widespread global issue: diploma mills, forged physical tr
 
 ---
 
-## 📸 Application Screenshots & Visual Tour
+## Application Screenshots & Visual Tour
 
 ### 1. Student Portal (Sourabh)
 
@@ -121,7 +120,7 @@ Credential fraud is a widespread global issue: diploma mills, forged physical tr
 
 ---
 
-## 🏛 System Architecture
+## System Architecture
 
 The platform implements a **Hybrid On-Chain / Off-Chain Architecture** designed for enterprise performance, zero gas fees, and student data privacy.
 
@@ -161,22 +160,22 @@ sequenceDiagram
 
 ---
 
-## 👥 Core Features by Role
+## Core Features by Role
 
-### 1. 🎓 University Issuer Portal (`UNIVERSITY_ISSUER`)
+### 1. University Issuer Portal (`UNIVERSITY_ISSUER`)
 * **Role Head**: **Bhavya** (`university@example.com`)
 * **Issue Degrees & Diplomas**: Create tamper-proof academic credentials for any registered student email.
 * **Cryptographic Signing**: Every issuance automatically generates an RSA-2048 digital signature and SHA-256 digest.
 * **Revocation Management**: Universities maintain the authority to revoke credentials (e.g. academic fraud) while retaining an immutable on-chain audit log with timestamps and justification.
 
-### 2. 🎒 Student Portal (`STUDENT`)
+### 2. Student Portal (`STUDENT`)
 * **Student**: **Sourabh** (`2005sourabhkumar@gmail.com`)
 * **Decentralized Academic Wallet**: Holds all degrees, certificates, and diplomas issued by accredited universities.
 * **Interactive QR Code Generator**: Each credential generates an on-the-fly QR code for instant scanning by recruiters and admission offices.
 * **One-Click Credential ID Sharing**: Quick copy utility to share verification tokens with recruiters.
 * **Cryptographic Profile**: Transparent display of W3C DID (`did:fabric:...`) and RSA Public Key.
 
-### 3. 🔍 Verifier Portal (`VERIFIER`)
+### 3. Verifier Portal (`VERIFIER`)
 * **Verifier**: **Acme Corp HR** (`verifier@example.com`)
 * **Direct ID Verification**: Enter any Credential ID (e.g. `CRED-...`) to query authenticity against the blockchain ledger.
 * **Cryptographic Hash Verification**: Verify arbitrary document hashes against ledger state.
@@ -184,7 +183,7 @@ sequenceDiagram
 
 ---
 
-## 🔐 Cryptographic & Blockchain Security
+## Cryptographic & Blockchain Security
 
 | Security Layer | Technology | Purpose |
 | :--- | :--- | :--- |
@@ -196,7 +195,7 @@ sequenceDiagram
 
 ---
 
-## 🛠 Technology Stack
+## Technology Stack
 
 ### Frontend
 * **React 18**: Single-page application architecture.
@@ -220,7 +219,7 @@ sequenceDiagram
 
 ---
 
-## 📂 Project Directory Structure
+## Project Directory Structure
 
 ```text
 blockchain-credential-verification/
@@ -286,7 +285,7 @@ blockchain-credential-verification/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 * **Node.js**: v18.0.0 or higher
@@ -353,7 +352,7 @@ CORS_ORIGIN=http://localhost:3000
 
 ---
 
-## 🔑 Pre-Seeded Demo Accounts & Credentials
+## Pre-Seeded Demo Accounts & Credentials
 
 The local database comes pre-configured with active accounts across all roles:
 
@@ -373,7 +372,7 @@ Paste any of these into the **Verifier Portal** (`http://localhost:3000/verifier
 
 ---
 
-## 📡 REST API Reference
+## REST API Reference
 
 ### Authentication Endpoints
 * `POST /api/auth/register` — Register a new student, university, or verifier.
@@ -393,7 +392,6 @@ Paste any of these into the **Verifier Portal** (`http://localhost:3000/verifier
 
 ---
 
-## 👤 Author & License
+## License
 
-* **Project Owner**: **sourabh-sk1** ([@sourabh-sk1](https://github.com/sourabh-sk1))
-* **License**: This project is licensed under the **MIT License** — feel free to use and modify for academic and commercial purposes.
+This project is licensed under the **MIT License** — feel free to use and modify for academic and commercial purposes.
