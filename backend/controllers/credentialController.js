@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Credential = require('../models/Credential');
 const User = require('../models/User');
 const AuditLog = require('../models/AuditLog');
@@ -219,8 +220,11 @@ exports.getCredential = async (req, res) => {
 exports.listStudentCredentials = async (req, res) => {
   try {
     const studentId = req.user.id;
+    const studentQuery = mongoose.Types.ObjectId.isValid(studentId)
+      ? { $or: [{ studentId: studentId }, { studentId: new mongoose.Types.ObjectId(studentId) }] }
+      : { studentId };
 
-    const credentials = await Credential.find({ studentId })
+    const credentials = await Credential.find(studentQuery)
       .populate('issuerId', 'name email organization')
       .sort({ createdAt: -1 });
 
@@ -228,7 +232,7 @@ exports.listStudentCredentials = async (req, res) => {
       count: credentials.length,
       credentials: credentials.map(cred => ({
         credentialId: cred.credentialId,
-        issuer: cred.issuerId.organization,
+        issuer: cred.issuerId?.organization || "Unknown Issuer",
         type: cred.credentialType,
         degree: cred.degree,
         major: cred.major,

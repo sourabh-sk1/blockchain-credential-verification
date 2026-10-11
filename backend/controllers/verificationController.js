@@ -137,7 +137,7 @@ exports.verifyCredentialHash = async (req, res) => {
         email: credential.studentId.email
       },
       issuer: {
-        name: credential.issuerId.organization
+        name: credential.issuerId?.organization || "Unknown Issuer"
       },
       credentialType: credential.credentialType,
       degree: credential.degree,
